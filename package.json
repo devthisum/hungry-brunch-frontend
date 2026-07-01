@@ -1,0 +1,29 @@
+{
+  "name": "hungry-brunch-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@react-three/drei": "^9.88.0",
+    "@react-three/fiber": "^8.15.0",
+    "axios": "^1.6.2",
+    "chart.js": "^4.4.1",
+    "framer-motion": "^10.16.16",
+    "gsap": "^3.12.3",
+    "lucide-react": "^0.303.0",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
+    "react-router-dom": "^6.21.1",
+    "react-scripts": "5.0.1",
+    "three": "^0.159.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  }
+}
