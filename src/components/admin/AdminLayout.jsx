@@ -1,28 +1,43 @@
 // src/components/admin/AdminLayout.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Coffee, LayoutDashboard, UtensilsCrossed, Tags, Star, Image,
-  Clock, Menu, X, LogOut, ChevronRight, Settings
+  Clock, Menu, X, LogOut, ChevronRight, CalendarCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { reservationAPI } from '../../utils/api';
 import toast from 'react-hot-toast';
-
-const navItems = [
-  { to: '/admin/dashboard', Icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/menu', Icon: UtensilsCrossed, label: 'Menu Items' },
-  { to: '/admin/categories', Icon: Tags, label: 'Categories' },
-  { to: '/admin/reviews', Icon: Star, label: 'Reviews' },
-  { to: '/admin/gallery', Icon: Image, label: 'Gallery' },
-  { to: '/admin/hours', Icon: Clock, label: 'Opening Hours' },
-];
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [newReservations, setNewReservations] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { admin, logout } = useAuth();
+
+  // Poll for new reservations every 30 seconds
+  useEffect(() => {
+    const fetchCounts = () => {
+      reservationAPI.getCounts()
+        .then(res => setNewReservations(res.data.data.new))
+        .catch(() => {});
+    };
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const navItems = [
+    { to: '/admin/dashboard',    Icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/admin/reservations', Icon: CalendarCheck,   label: 'Reservations', badge: newReservations },
+    { to: '/admin/menu',         Icon: UtensilsCrossed, label: 'Menu Items' },
+    { to: '/admin/categories',   Icon: Tags,            label: 'Categories' },
+    { to: '/admin/reviews',      Icon: Star,            label: 'Reviews' },
+    { to: '/admin/gallery',      Icon: Image,           label: 'Gallery' },
+    { to: '/admin/hours',        Icon: Clock,           label: 'Opening Hours' },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -47,7 +62,7 @@ export default function AdminLayout({ children }) {
 
       {/* Nav */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navItems.map(({ to, Icon, label }) => {
+        {navItems.map(({ to, Icon, label, badge }) => {
           const active = location.pathname === to;
           return (
             <Link
@@ -61,8 +76,14 @@ export default function AdminLayout({ children }) {
               }`}
             >
               <Icon size={17} className={active ? 'text-gold' : 'text-cream/40 group-hover:text-cream/70'} />
-              <span>{label}</span>
-              {active && <ChevronRight size={14} className="ml-auto text-gold/60" />}
+              <span className="flex-1">{label}</span>
+              {/* New reservations badge */}
+              {badge > 0 && (
+                <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                  {badge}
+                </span>
+              )}
+              {active && !badge && <ChevronRight size={14} className="text-gold/60" />}
             </Link>
           );
         })}
@@ -83,12 +104,13 @@ export default function AdminLayout({ children }) {
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-cream/50 hover:text-red-400 hover:bg-red-400/10 transition-all"
         >
-          <LogOut size={15} />
-          Sign Out
+          <LogOut size={15} /> Sign Out
         </button>
       </div>
     </div>
   );
+
+  const pageLabel = navItems.find(n => n.to === location.pathname)?.label || 'Admin';
 
   return (
     <div className="min-h-screen bg-bg flex">
@@ -97,7 +119,7 @@ export default function AdminLayout({ children }) {
         <SidebarContent />
       </aside>
 
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar overlay */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
@@ -133,16 +155,21 @@ export default function AdminLayout({ children }) {
               <Menu size={20} />
             </button>
             <div>
-              <h2 className="font-display font-bold text-cream text-lg">
-                {navItems.find(n => n.to === location.pathname)?.label || 'Admin'}
-              </h2>
+              <div className="flex items-center gap-3">
+                <h2 className="font-display font-bold text-cream text-lg">{pageLabel}</h2>
+                {/* Show new badge in header too when on other pages */}
+                {newReservations > 0 && location.pathname !== '/admin/reservations' && (
+                  <Link to="/admin/reservations">
+                    <span className="bg-blue-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full animate-pulse hover:bg-blue-400 transition-colors">
+                      {newReservations} new reservation{newReservations > 1 ? 's' : ''}
+                    </span>
+                  </Link>
+                )}
+              </div>
               <p className="text-cream/30 text-xs">Hungry Brunch Management</p>
             </div>
           </div>
-          <Link
-            to="/"
-            className="text-xs text-cream/40 hover:text-cream transition-colors flex items-center gap-1"
-          >
+          <Link to="/" className="text-xs text-cream/40 hover:text-cream transition-colors flex items-center gap-1">
             View Site →
           </Link>
         </header>

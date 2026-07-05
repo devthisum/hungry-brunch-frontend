@@ -29,8 +29,9 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminGallery from './pages/admin/AdminGallery';
 import AdminHours from './pages/admin/AdminHours';
+import AdminReservations from './pages/admin/AdminReservations';
 
-// Page transition wrapper
+// Smooth page transition wrapper
 function PageTransition({ children }) {
   return (
     <motion.div
@@ -44,7 +45,7 @@ function PageTransition({ children }) {
   );
 }
 
-// Public layout with nav + footer
+// Public layout — Navbar + content + Footer
 function PublicLayout({ children }) {
   return (
     <>
@@ -55,50 +56,45 @@ function PublicLayout({ children }) {
   );
 }
 
-// Animated routes
+// All routes with animation
 function AnimatedRoutes() {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Public routes */}
+
+        {/* ── Public pages ───────────────────────────────── */}
         <Route path="/" element={
-          <PublicLayout>
-            <PageTransition><HomePage /></PageTransition>
-          </PublicLayout>
+          <PublicLayout><PageTransition><HomePage /></PageTransition></PublicLayout>
         } />
         <Route path="/menu" element={
-          <PublicLayout>
-            <PageTransition><MenuPage /></PageTransition>
-          </PublicLayout>
+          <PublicLayout><PageTransition><MenuPage /></PageTransition></PublicLayout>
         } />
         <Route path="/about" element={
-          <PublicLayout>
-            <PageTransition><AboutPage /></PageTransition>
-          </PublicLayout>
+          <PublicLayout><PageTransition><AboutPage /></PageTransition></PublicLayout>
         } />
         <Route path="/gallery" element={
-          <PublicLayout>
-            <PageTransition><GalleryPage /></PageTransition>
-          </PublicLayout>
+          <PublicLayout><PageTransition><GalleryPage /></PageTransition></PublicLayout>
         } />
         <Route path="/reviews" element={
-          <PublicLayout>
-            <PageTransition><ReviewsPage /></PageTransition>
-          </PublicLayout>
+          <PublicLayout><PageTransition><ReviewsPage /></PageTransition></PublicLayout>
         } />
         <Route path="/contact" element={
-          <PublicLayout>
-            <PageTransition><ContactPage /></PageTransition>
-          </PublicLayout>
+          <PublicLayout><PageTransition><ContactPage /></PageTransition></PublicLayout>
         } />
 
-        {/* Admin routes */}
+        {/* ── Admin pages ────────────────────────────────── */}
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        <Route path="/admin" element={
+          <ProtectedRoute><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>
+        } />
         <Route path="/admin/dashboard" element={
           <ProtectedRoute><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>
+        } />
+        <Route path="/admin/reservations" element={
+          <ProtectedRoute><PageTransition><AdminReservations /></PageTransition></ProtectedRoute>
         } />
         <Route path="/admin/menu" element={
           <ProtectedRoute><PageTransition><AdminMenu /></PageTransition></ProtectedRoute>
@@ -116,45 +112,38 @@ function AnimatedRoutes() {
           <ProtectedRoute><PageTransition><AdminHours /></PageTransition></ProtectedRoute>
         } />
 
-        {/* Redirect /admin → /admin/dashboard */}
-        <Route path="/admin" element={
-          <ProtectedRoute><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>
-        } />
-
-        {/* 404 */}
+        {/* ── 404 ───────────────────────────────────────── */}
         <Route path="*" element={
           <PublicLayout>
-            <div className="min-h-screen flex items-center justify-center text-center px-4">
+            <div className="min-h-screen flex items-center justify-center text-center px-4 pt-24">
               <div>
                 <span className="text-8xl block mb-6">🍽️</span>
-                <h1 className="font-display text-5xl font-bold text-cream mb-4">404</h1>
-                <p className="text-cream/50 mb-8">Oops! This page seems to have left the menu.</p>
-                <a href="/" className="btn-primary px-8 py-3 rounded-full text-sm font-semibold">
+                <h1 className="font-display text-6xl font-bold text-cream mb-4">404</h1>
+                <p className="text-cream/50 text-lg mb-8">This page left the menu.</p>
+                <a href="/" className="btn-primary px-8 py-4 rounded-full text-sm font-semibold">
                   Go Back Home
                 </a>
               </div>
             </div>
           </PublicLayout>
         } />
+
       </Routes>
     </AnimatePresence>
   );
 }
 
-// Initial loading screen
+// Initial loading screen on first visit
 function AppWithLoader() {
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1800);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setLoading(false), 1800);
+    return () => clearTimeout(t);
   }, []);
 
   return (
     <>
-      <AnimatePresence>
-        {loading && <LoadingScreen />}
-      </AnimatePresence>
+      <AnimatePresence>{loading && <LoadingScreen />}</AnimatePresence>
       {!loading && <AnimatedRoutes />}
     </>
   );
@@ -176,7 +165,7 @@ export default function App() {
               fontSize: '13px',
             },
             success: { iconTheme: { primary: '#D97706', secondary: '#FFF8E7' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#FFF8E7' } },
+            error:   { iconTheme: { primary: '#ef4444', secondary: '#FFF8E7' } },
           }}
         />
       </AuthProvider>

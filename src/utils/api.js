@@ -75,3 +75,11 @@ export const authAPI = {
 export const analyticsAPI = {
   get: () => api.get('/analytics'),
 };
+
+export const reservationAPI = {
+  create: (data) => api.post('/reservations', data),
+  getAll: (status) => api.get('/reservations', { params: status ? { status } : {} }),
+  getCounts: () => api.get('/reservations/counts'),
+  updateStatus: (id, status) => api.patch(`/reservations/${id}/status`, { status }),
+  delete: (id) => api.delete(`/reservations/${id}`),
+};
