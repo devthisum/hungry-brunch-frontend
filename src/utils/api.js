@@ -83,3 +83,15 @@ export const reservationAPI = {
   updateStatus: (id, status) => api.patch(`/reservations/${id}/status`, { status }),
   delete: (id) => api.delete(`/reservations/${id}`),
 };
+
+export const promotionAPI = {
+  getAll:  (active) => api.get('/promotions', { params: active ? { active: true } : {} }),
+  create:  (data)   => api.post('/promotions', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update:  (id, data) => api.put(`/promotions/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  delete:  (id)     => api.delete(`/promotions/${id}`),
+  toggle:  (id)     => api.patch(`/promotions/${id}/toggle`),
+};
+
+export const qrAPI = {
+  getMenu: () => api.get('/qrcode/menu'),
+};
