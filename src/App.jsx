@@ -4,10 +4,14 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence, motion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/common/Navbar';
-import Footer from './components/common/Footer';
-import LoadingScreen from './components/common/LoadingScreen';
-import ProtectedRoute from './components/common/ProtectedRoute';
+
+// Common
+import Navbar          from './components/common/Navbar';
+import Footer          from './components/common/Footer';
+import LoadingScreen   from './components/common/LoadingScreen';
+import ProtectedRoute  from './components/common/ProtectedRoute';
+import ScrollProgress  from './components/common/ScrollProgress';
+import MobileNav       from './components/common/MobileNav';
 
 // Public pages
 import HomePage     from './pages/HomePage';
@@ -32,15 +36,26 @@ import AdminQRCode       from './pages/admin/AdminQRCode';
 
 function PageTransition({ children }) {
   return (
-    <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-8 }}
-      transition={{ duration:0.35, ease:'easeOut' }}>
+    <motion.div
+      initial={{ opacity:0, y:12 }}
+      animate={{ opacity:1, y:0 }}
+      exit={{ opacity:0, y:-8 }}
+      transition={{ duration:0.35, ease:'easeOut' }}
+    >
       {children}
     </motion.div>
   );
 }
 
 function PublicLayout({ children }) {
-  return (<><Navbar /><main>{children}</main><Footer /></>);
+  return (
+    <>
+      <Navbar />
+      <main className="pb-16 md:pb-0">{children}</main>
+      <Footer />
+      <MobileNav />
+    </>
+  );
 }
 
 function AnimatedRoutes() {
@@ -49,26 +64,26 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public */}
-        <Route path="/"        element={<PublicLayout><PageTransition><HomePage /></PageTransition></PublicLayout>} />
-        <Route path="/menu"    element={<PublicLayout><PageTransition><MenuPage /></PageTransition></PublicLayout>} />
-        <Route path="/offers"  element={<PublicLayout><PageTransition><OffersPage /></PageTransition></PublicLayout>} />
-        <Route path="/about"   element={<PublicLayout><PageTransition><AboutPage /></PageTransition></PublicLayout>} />
+        <Route path="/"        element={<PublicLayout><PageTransition><HomePage    /></PageTransition></PublicLayout>} />
+        <Route path="/menu"    element={<PublicLayout><PageTransition><MenuPage    /></PageTransition></PublicLayout>} />
+        <Route path="/offers"  element={<PublicLayout><PageTransition><OffersPage  /></PageTransition></PublicLayout>} />
+        <Route path="/about"   element={<PublicLayout><PageTransition><AboutPage   /></PageTransition></PublicLayout>} />
         <Route path="/gallery" element={<PublicLayout><PageTransition><GalleryPage /></PageTransition></PublicLayout>} />
         <Route path="/reviews" element={<PublicLayout><PageTransition><ReviewsPage /></PageTransition></PublicLayout>} />
         <Route path="/contact" element={<PublicLayout><PageTransition><ContactPage /></PageTransition></PublicLayout>} />
 
         {/* Admin */}
         <Route path="/admin/login"        element={<AdminLogin />} />
-        <Route path="/admin"              element={<ProtectedRoute><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/dashboard"    element={<ProtectedRoute><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin"              element={<ProtectedRoute><PageTransition><AdminDashboard    /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/dashboard"    element={<ProtectedRoute><PageTransition><AdminDashboard    /></PageTransition></ProtectedRoute>} />
         <Route path="/admin/reservations" element={<ProtectedRoute><PageTransition><AdminReservations /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/menu"         element={<ProtectedRoute><PageTransition><AdminMenu /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/categories"   element={<ProtectedRoute><PageTransition><AdminCategories /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/promotions"   element={<ProtectedRoute><PageTransition><AdminPromotions /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/reviews"      element={<ProtectedRoute><PageTransition><AdminReviews /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/gallery"      element={<ProtectedRoute><PageTransition><AdminGallery /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/hours"        element={<ProtectedRoute><PageTransition><AdminHours /></PageTransition></ProtectedRoute>} />
-        <Route path="/admin/qrcode"       element={<ProtectedRoute><PageTransition><AdminQRCode /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/menu"         element={<ProtectedRoute><PageTransition><AdminMenu         /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/categories"   element={<ProtectedRoute><PageTransition><AdminCategories   /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/promotions"   element={<ProtectedRoute><PageTransition><AdminPromotions   /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/reviews"      element={<ProtectedRoute><PageTransition><AdminReviews      /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/gallery"      element={<ProtectedRoute><PageTransition><AdminGallery      /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/hours"        element={<ProtectedRoute><PageTransition><AdminHours        /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin/qrcode"       element={<ProtectedRoute><PageTransition><AdminQRCode       /></PageTransition></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={
@@ -93,6 +108,7 @@ function AppWithLoader() {
   useEffect(() => { const t = setTimeout(() => setLoading(false), 1800); return () => clearTimeout(t); }, []);
   return (
     <>
+      <ScrollProgress />
       <AnimatePresence>{loading && <LoadingScreen />}</AnimatePresence>
       {!loading && <AnimatedRoutes />}
     </>
